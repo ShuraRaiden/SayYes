@@ -58,6 +58,52 @@ async function sendAnswerEmail(invite, answer) {
   console.log(`Answer details:`, answer);
   console.log('----------------------------------');
 
+  const htmlContent = `
+    <div style="font-family: sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #DFD2B8; border-radius: 12px; background-color: #FFFCF4;">
+      <h1 style="color: #EE5B36; font-size: 24px; text-align: center;">¡Dijo que SÍ! 🥳</h1>
+      <p style="font-size: 16px; color: #1C1611;">¡Buenas noticias! <b>${invite.to_name}</b> ha respondido a tu invitación:</p>
+      
+      <div style="background-color: #F4EBD8; padding: 15px; border-radius: 8px; border: 1.5px solid #1C1611; margin: 20px 0;">
+        <p style="margin: 5px 0;"><b>📍 Lugar:</b> ${answer.place || '—'}</p>
+        <p style="margin: 5px 0;"><b>🗓️ Cuándo:</b> ${answer.when || '—'}</p>
+        ${answer.note ? `<p style="margin: 5px 0;"><b>💬 Mensaje:</b> "${answer.note}"</p>` : ''}
+        <p style="margin: 5px 0; font-size: 12px; color: #7B6B5A;">Intentos de pulsar "NO": ${answer.no_escapes || 0}</p>
+      </div>
+      
+      <p style="font-size: 14px; color: #7B6B5A; text-align: center;">¡Prepárate para la cita! 😉</p>
+    </div>
+  `;
+
+  // === Option A: Resend API (HTTP, port 443 - never blocked on Render) ===
+  if (process.env.RESEND_API_KEY) {
+    try {
+      const response = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: 'YES or YES <onboarding@resend.dev>',
+          to: invite.owner_email,
+          subject: `💌 ${invite.to_name} dijo que SÍ!`,
+          html: htmlContent,
+        }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        console.log('[Email Info] Email sent successfully via Resend:', data.id);
+      } else {
+        console.error('[Email Error] Resend API failed:', data);
+      }
+    } catch (err) {
+      console.error('[Email Error] Failed to send email via Resend:', err);
+    }
+    return;
+  }
+
+  // === Option B: Nodemailer SMTP (Fallback) ===
   const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM_NAME } = process.env;
 
   if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) {
@@ -85,27 +131,13 @@ async function sendAnswerEmail(invite, answer) {
       from: `"${SMTP_FROM_NAME || 'YES or YES 💌'}" <${SMTP_USER}>`,
       to: invite.owner_email,
       subject: `💌 ${invite.to_name} dijo que SÍ!`,
-      html: `
-        <div style="font-family: sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #DFD2B8; border-radius: 12px; background-color: #FFFCF4;">
-          <h1 style="color: #EE5B36; font-size: 24px; text-align: center;">¡Dijo que SÍ! 🥳</h1>
-          <p style="font-size: 16px; color: #1C1611;">¡Buenas noticias! <b>${invite.to_name}</b> ha respondido a tu invitación:</p>
-          
-          <div style="background-color: #F4EBD8; padding: 15px; border-radius: 8px; border: 1.5px solid #1C1611; margin: 20px 0;">
-            <p style="margin: 5px 0;"><b>📍 Lugar:</b> ${answer.place || '—'}</p>
-            <p style="margin: 5px 0;"><b>🗓️ Cuándo:</b> ${answer.when || '—'}</p>
-            ${answer.note ? `<p style="margin: 5px 0;"><b>💬 Mensaje:</b> "${answer.note}"</p>` : ''}
-            <p style="margin: 5px 0; font-size: 12px; color: #7B6B5A;">Intentos de pulsar "NO": ${answer.no_escapes || 0}</p>
-          </div>
-          
-          <p style="font-size: 14px; color: #7B6B5A; text-align: center;">¡Prepárate para la cita! 😉</p>
-        </div>
-      `,
+      html: htmlContent,
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log('[Email Info] Email sent successfully:', info.messageId);
+    console.log('[Email Info] Email sent successfully via SMTP:', info.messageId);
   } catch (err) {
-    console.error('[Email Error] Failed to send email:', err);
+    console.error('[Email Error] Failed to send email via SMTP:', err);
   }
 }
 
