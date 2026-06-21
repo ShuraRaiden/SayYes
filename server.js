@@ -187,7 +187,31 @@ app.get('/', (req, res) => {
 
 // Serve invitation page for shortlinks
 app.get('/d/:id', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'invite.html'));
+  const db = readDb();
+  const invite = db.invites[req.params.id];
+  
+  if (!invite) {
+    return res.sendFile(path.join(__dirname, 'public', 'invite.html'));
+  }
+
+  const filePath = path.join(__dirname, 'public', 'invite.html');
+  fs.readFile(filePath, 'utf8', (err, html) => {
+    if (err) {
+      return res.sendFile(filePath);
+    }
+    
+    // Customize title and description dynamically for crawler previews
+    let customizedHtml = html;
+    const titleText = `An important question for you`;
+    const descText = invite.question || "Will you go on a date with me?";
+    
+    customizedHtml = customizedHtml
+      .replace(/<title>.*?<\/title>/, `<title>${titleText}</title>`)
+      .replace(/<meta property="og:title" content=".*?" \/>/g, `<meta property="og:title" content="${titleText}" />`)
+      .replace(/<meta property="og:description" content=".*?" \/>/g, `<meta property="og:description" content="${descText}" />`);
+      
+    res.send(customizedHtml);
+  });
 });
 
 // Start server
