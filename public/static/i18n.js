@@ -202,9 +202,9 @@
     },
 
     es: {
-      c_eyebrow: "generador de invitaciones",
-      c_title: "¿Demasiado nervioso para preguntar? <mark>Que el botón No huya.</mark>",
-      c_lead: "Rellena un par de campos, obtén un enlace y envíalo. Cuando lo abra, el botón «No» empieza a huir — una forma tonta de invitar a alguien que ya te quiere.",
+      c_eyebrow: "plataforma de invitaciones creativas",
+      c_title: "¿Sientes un nudo en el estómago? <mark>¡Tu 'no' se ha escapado!</mark>",
+      c_lead: "Introduce unos pocos detalles, genera tu enlace y compártelo. Una vez que lo abra, el botón de 'No' cobrará vida propia y se esfumará. Una travesura digital para invitar a alguien que ya te tiene un hueco especial en su corazón.",
       c_lang_label: "Idioma de la invitación",
       c_to_label: "¿Cómo se llama?",
       c_to_ph: "Ana",
