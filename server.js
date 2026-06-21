@@ -66,15 +66,20 @@ async function sendAnswerEmail(invite, answer) {
   }
 
   try {
-    const transporter = nodemailer.createTransport({
-      host: SMTP_HOST,
-      port: parseInt(SMTP_PORT) || 587,
-      secure: process.env.SMTP_SECURE === 'true',
-      auth: {
-        user: SMTP_USER,
-        pass: SMTP_PASS,
-      },
-    });
+    const config = {};
+    if (SMTP_HOST.includes('gmail')) {
+      config.service = 'gmail';
+    } else {
+      config.host = SMTP_HOST;
+      config.port = parseInt(SMTP_PORT) || 587;
+      config.secure = process.env.SMTP_SECURE === 'true';
+    }
+    config.auth = {
+      user: SMTP_USER,
+      pass: SMTP_PASS,
+    };
+
+    const transporter = nodemailer.createTransport(config);
 
     const mailOptions = {
       from: `"${SMTP_FROM_NAME || 'YES or YES 💌'}" <${SMTP_USER}>`,
