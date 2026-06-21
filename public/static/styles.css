@@ -1,0 +1,322 @@
+:root {
+  --cream:   #F4EBD8;   /* тёплая бумага */
+  --cream-2: #EFE4CC;
+  --ink:     #1C1611;   /* тёплый чёрный */
+  --ink-soft:#7B6B5A;   /* тёплый таупе */
+  --tomato:  #EE5B36;   /* главный акцент — томат/коралл (НЕ розовый) */
+  --tomato-d:#D24320;
+  --butter:  #F4C24A;   /* второй акцент-«пшик» */
+  --sky:     #2FB4A8;   /* холодный контраст для деталей */
+  --line:    #DFD2B8;
+  --surface: #FFFCF4;   /* плитки / облачко / инпуты */
+
+  --serif: "Fraunces", Georgia, "Times New Roman", serif;
+  --sans:  "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:  "Space Mono", ui-monospace, "SFMono-Regular", monospace;
+
+  --ease:  cubic-bezier(.22, 1, .36, 1);
+  --back:  cubic-bezier(.34, 1.56, .64, 1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+
+body {
+  min-height: 100dvh;
+  font-family: var(--sans);
+  color: var(--ink);
+  background: var(--cream);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  display: flex; flex-direction: column; align-items: center;
+  overflow-x: hidden;
+}
+
+/* Зерно бумаги */
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  opacity: .05; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Тонкая «постерная» рамка */
+.frame {
+  position: fixed; inset: 14px; z-index: 3; pointer-events: none;
+  border: 1.5px solid rgba(28, 22, 17, .18); border-radius: 12px;
+  /* Кремовое «паспарту» наружу рамки: при скролле контент прячется за ней,
+     а не торчит в полосе между линией рамки и краем экрана. */
+  box-shadow: 0 0 0 100vmax var(--cream);
+}
+
+/* ---------- Сцена / экраны ---------- */
+.stage {
+  position: relative; z-index: 1;
+  width: 100%; max-width: 480px;
+  /* safe-area: контент не уезжает под «остров»/статус-бар и home-indicator (viewport-fit=cover) */
+  padding: calc(40px + env(safe-area-inset-top, 0px)) 26px calc(40px + env(safe-area-inset-bottom, 0px));
+  min-height: 100dvh;
+  display: flex; flex-direction: column;
+}
+.screen { display: none; width: 100%; flex-direction: column; align-items: center; gap: 26px; }
+/* margin:auto центрирует экран, когда он влезает, и «распрямляется» в обычный скролл
+   сверху, когда контент выше вьюпорта (иначе align-items:center обрезал бы верх). */
+.screen.is-active {
+  display: flex;
+  margin-top: auto;
+  margin-bottom: auto;
+  padding-bottom: 30px;
+}
+
+.card {
+  position: relative;
+  width: 100%;
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center; padding: 8px 6px;
+}
+.card--wide { text-align: left; align-items: stretch; }
+
+.pop { animation: rise .55s var(--ease) both; }
+@keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+
+/* ---------- Типографика ---------- */
+.eyebrow {
+  font-family: var(--mono); font-weight: 700;
+  font-size: 12px; text-transform: uppercase; letter-spacing: .2em;
+  color: var(--tomato); margin-bottom: 20px;
+}
+.card--wide .eyebrow { margin-bottom: 14px; }
+
+.sticker {
+  font-size: 52px; line-height: 1; margin-bottom: 22px;
+  display: inline-block; filter: drop-shadow(0 8px 10px rgba(28,22,17,.16));
+  animation: bob 4s ease-in-out infinite;
+}
+.sticker--wave  { transform: rotate(-8deg);  }
+.sticker--party { transform: rotate(6deg);   }
+.sticker--letter{ transform: rotate(-5deg);  }
+@keyframes bob { 0%,100% { transform: translateY(0) rotate(var(--r,-6deg)); } 50% { transform: translateY(-7px) rotate(var(--r,-6deg)); } }
+.sticker--wave  { --r:-8deg; } .sticker--party { --r:6deg; } .sticker--letter { --r:-5deg; }
+
+h1 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(38px, 11vw, 58px);
+  line-height: .98; letter-spacing: -.025em;
+  color: var(--ink);
+}
+.question-text { max-width: 14ch; margin: 0 auto; }
+h2 { font-family: var(--serif); font-weight: 600; font-size: 28px; letter-spacing: -.01em; margin-bottom: 22px; }
+
+/* Подчёркнутое от руки слово */
+.mark { position: relative; display: inline-block; color: var(--tomato); white-space: nowrap; }
+.doodle-underline {
+  position: absolute; left: -2%; bottom: -.18em; width: 104%; height: .42em;
+  color: var(--tomato); overflow: visible;
+}
+
+.lead { font-size: 18px; line-height: 1.5; color: var(--ink); margin-top: 22px; max-width: 26ch; }
+.muted { font-size: 16px; line-height: 1.5; color: var(--ink-soft); margin-top: 8px; max-width: 28ch; }
+.from {
+  font-family: var(--mono); font-size: 13px; color: var(--ink-soft);
+  margin-top: 30px; display: flex; flex-direction: column; align-items: center; gap: 2px;
+}
+.from .from-name {
+  font-family: var(--serif); font-style: italic; font-weight: 600;
+  font-size: 30px; line-height: 1.05; color: var(--tomato);
+}
+.accent { color: var(--tomato); font-weight: 600; }
+
+/* Дудл-звёздочки */
+.doodle-star { position: absolute; width: 22px; color: var(--butter); }
+.doodle-star.s1 { top: 4%;  right: 12%; transform: rotate(8deg);  color: var(--tomato); width: 18px; }
+.doodle-star.s2 { top: 30%; left: 8%;  transform: rotate(-12deg); color: var(--butter); width: 26px; }
+
+/* ---------- Кнопки ---------- */
+.btn {
+  font-family: var(--sans); font-weight: 600; font-size: 16px;
+  border: 2px solid var(--ink); border-radius: 999px; cursor: pointer;
+  -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+  transition: transform .16s var(--ease), background .2s ease, box-shadow .16s ease, color .2s ease;
+}
+.btn:active { transform: translate(2px, 2px); }
+
+.btn--primary {
+  margin-top: 30px; padding: 15px 40px;
+  color: var(--cream); background: var(--tomato);
+  box-shadow: 4px 4px 0 0 var(--ink);
+}
+.btn--primary:hover { transform: translate(-1px,-1px); box-shadow: 6px 6px 0 0 var(--ink); background: var(--tomato-d); }
+
+.btn--ghost {
+  padding: 14px 26px; background: var(--surface); color: var(--ink);
+  box-shadow: 3px 3px 0 0 var(--ink);
+}
+.btn--ghost:hover { transform: translate(-1px,-1px); box-shadow: 5px 5px 0 0 var(--ink); }
+
+/* ---------- Вопрос: подсказка-стрелка + YES/NO ---------- */
+.qcta { position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; }
+.nudge {
+  font-family: var(--mono); font-size: 13px; color: var(--ink-soft);
+  display: inline-flex; align-items: center; gap: 4px;
+  transform: rotate(-4deg); margin-bottom: 6px;
+}
+.doodle-arrow { width: 40px; height: 44px; color: var(--tomato); overflow: visible; }
+
+.buttons {
+  display: flex; gap: 18px; align-items: center; justify-content: center;
+  flex-wrap: wrap; min-height: 92px; position: relative; width: 100%;
+}
+.btn--yes {
+  position: relative; z-index: 6;
+  padding: 17px 52px; font-size: 19px; letter-spacing: .06em;
+  color: var(--cream); background: var(--tomato);
+  box-shadow: 5px 5px 0 0 var(--ink);
+}
+.btn--yes:hover { transform: translate(-1px,-1px); box-shadow: 7px 7px 0 0 var(--ink); background: var(--tomato-d); }
+.btn--yes.glow { animation: nudgeYes 1.4s var(--back) infinite; }
+@keyframes nudgeYes {
+  0%,100% { transform: rotate(-1deg); }
+  50%     { transform: rotate(2deg) scale(1.03); }
+}
+
+.no-wrap { position: relative; display: inline-flex; }
+.no-wrap.is-running { position: fixed; z-index: 5; left: 0; top: 0; }
+.btn--no {
+  --no-base: 18px; font-size: var(--no-base);
+  padding: .7em 1.5em; letter-spacing: .06em;
+  color: var(--ink); background: var(--surface);
+  box-shadow: 4px 4px 0 0 var(--ink); white-space: nowrap;
+  transition: font-size .25s var(--back), transform .15s ease, box-shadow .16s ease;
+}
+
+/* Облачко-сообщение «от него» */
+.no-bubble {
+  position: absolute; left: 50%; bottom: calc(100% + 14px);
+  transform: translateX(-50%) scale(0) rotate(-2deg);
+  background: var(--surface); color: var(--ink);
+  border: 2px solid var(--ink); border-radius: 16px;
+  font-family: var(--sans); font-size: 14.5px; font-weight: 500; line-height: 1.35;
+  padding: 10px 15px; box-shadow: 3px 3px 0 0 var(--ink);
+  opacity: 0; pointer-events: none;
+  transition: opacity .22s ease, transform .25s var(--back);
+  /* width:max-content — облачко по ширине ТЕКСТА (короткая фраза = одна строка),
+     а не по ширине маленькой кнопки-обёртки, иначе текст ломается в узкий столбик. */
+  width: max-content; max-width: min(76vw, 300px); white-space: normal; text-align: center;
+}
+.no-bubble::after {
+  content: ""; position: absolute; left: 50%; top: 100%; transform: translateX(-50%);
+  border: 8px solid transparent; border-top-color: var(--ink);
+}
+.no-bubble::before {
+  content: ""; position: absolute; left: 50%; top: calc(100% - 3px); transform: translateX(-50%);
+  border: 6px solid transparent; border-top-color: var(--surface); z-index: 1;
+}
+.no-bubble.show { opacity: 1; transform: translateX(-50%) scale(1) rotate(-2deg); }
+.no-bubble.ping { animation: ping .45s var(--back); }
+@keyframes ping {
+  0%   { transform: translateX(-50%) scale(.6) rotate(-2deg); }
+  60%  { transform: translateX(-50%) scale(1.08) rotate(1deg); }
+  100% { transform: translateX(-50%) scale(1) rotate(-2deg); }
+}
+
+/* ---------- Анкета ---------- */
+.progress { height: 4px; background: var(--cream-2); border: 1px solid var(--line); border-radius: 999px; overflow: hidden; margin-bottom: 28px; }
+.progress__bar { display:block; height:100%; width:33%; background: var(--tomato); border-radius: 999px; transition: width .45s var(--ease); }
+
+.step { display: none; }
+.step.is-active { display: block; animation: rise .4s var(--ease) both; }
+
+.choices { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+.choice {
+  font-family: var(--sans);
+  background: var(--surface); border: 2px solid var(--ink); border-radius: 16px;
+  padding: 15px 8px; cursor: pointer; box-shadow: 3px 3px 0 0 var(--ink);
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  transition: transform .14s var(--ease), box-shadow .16s ease, background .2s ease;
+}
+.choice .ic { font-size: 26px; line-height: 1; }
+.choice span:last-child { font-size: 13.5px; font-weight: 600; color: var(--ink); }
+.choice:hover { transform: translate(-1px,-1px); box-shadow: 5px 5px 0 0 var(--ink); }
+.choice.is-selected { background: var(--butter); transform: translate(1px,1px); box-shadow: 2px 2px 0 0 var(--ink); }
+
+.custom-input, .note-input {
+  width: 100%; font-family: var(--sans); font-size: 15.5px; color: var(--ink);
+  padding: 13px 15px; border: 2px solid var(--ink); border-radius: 14px;
+  background: var(--surface); outline: none; box-shadow: 3px 3px 0 0 var(--ink);
+  transition: box-shadow .16s ease, transform .14s ease;
+}
+.custom-input::placeholder, .note-input::placeholder { color: #b6a88f; }
+.custom-input:focus, .note-input:focus { transform: translate(-1px,-1px); box-shadow: 5px 5px 0 0 var(--tomato); }
+.note-input { resize: vertical; }
+
+/* WebKit (iOS) даёт date/time инпутам свою intrinsic-ширину и игнорит width:100% —
+   сбрасываем appearance, чтобы они слушались width и не вылазили за карточку */
+.custom-input[type="date"],
+.custom-input[type="time"],
+.custom-input[type="datetime-local"] {
+  -webkit-appearance: none; appearance: none; min-width: 0; max-width: 100%;
+}
+
+.step-nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 26px; }
+.step-nav .btn { flex: 1; }
+.step-nav .btn--primary { margin-top: 0; }
+
+.summary {
+  margin-top: 24px; width: 100%;
+  background: var(--surface); border: 2px solid var(--ink); border-radius: 16px;
+  box-shadow: 4px 4px 0 0 var(--ink);
+  padding: 18px; text-align: left; font-size: 15.5px; line-height: 1.85; color: var(--ink-soft);
+}
+.summary b { color: var(--ink); font-weight: 600; }
+
+/* Бренд-бейдж на финальном экране — виральная петля (она шерит → новые парни) */
+.brand-badge {
+  display: inline-block; margin-top: 28px;
+  font-family: var(--mono); font-size: 12px; letter-spacing: .04em;
+  color: var(--ink-soft); text-decoration: none;
+  border-bottom: 1.5px dotted var(--line);
+}
+.brand-badge:hover { color: var(--tomato); border-bottom-color: var(--tomato); }
+
+/* ---------- Сторона парня: форма + ссылка ---------- */
+.form { width: 100%; margin-top: 26px; }
+.field { display: flex; flex-direction: column; gap: 7px; margin-bottom: 16px; text-align: left; }
+.field label {
+  font-family: var(--mono); font-size: 12px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .14em; color: var(--ink-soft);
+}
+.field label .opt { color: #b6a88f; font-weight: 400; letter-spacing: .08em; }
+.field-note { font-size: 13px; line-height: 1.4; color: var(--ink-soft); margin-top: 2px; }
+
+.btn--block { display: block; width: 100%; text-align: center; }
+.form .btn--block { margin-top: 22px; }
+
+.linkbox { display: flex; gap: 10px; margin-top: 24px; align-items: stretch; }
+.linkbox .custom-input { font-family: var(--mono); font-size: 13px; flex: 1; min-width: 0; }
+.linkbox .btn { margin: 0; white-space: nowrap; padding: 12px 18px; }
+
+.share-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+.btn--share {
+  flex: 1 1 auto; text-align: center; text-decoration: none;
+  padding: 13px 16px; font-size: 15px;
+  color: var(--ink); background: var(--surface);
+  border: 2px solid var(--ink); border-radius: 999px; box-shadow: 3px 3px 0 0 var(--ink);
+}
+.btn--share:hover { transform: translate(-1px,-1px); box-shadow: 5px 5px 0 0 var(--ink); }
+
+.recap {
+  margin-top: 20px; padding: 14px 16px; text-align: left;
+  font-family: var(--mono); font-size: 13px; line-height: 1.5; color: var(--ink);
+  background: var(--butter); border: 2px solid var(--ink); border-radius: 14px; box-shadow: 3px 3px 0 0 var(--ink);
+}
+.screen--done .btn--block { margin-top: 22px; }
+
+@media (max-width: 360px) {
+  .btn--yes { padding: 16px 42px; }
+  .choice .ic { font-size: 23px; }
+  .frame { inset: 8px; }
+  .linkbox { flex-direction: column; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sticker, .btn--yes.glow { animation: none !important; }
+}

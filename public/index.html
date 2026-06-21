@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Create an invitation 💌</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23F4EBD8'/%3E%3Cpath d='M16 26C7 20 5 13 9 9.5c2.6-2.3 6-1 7 1.6 1-2.6 4.4-3.9 7-1.6 4 3.5 2 10.5-7 16.5z' fill='%23EE5B36'/%3E%3C/svg%3E" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="YES or YES — a goofy way to ask someone out" />
+  <meta property="og:description" content="Too nervous to just ask? Send a link where the No button runs away 💌" />
+  <meta property="og:url" content="/" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,600&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <div class="frame" aria-hidden="true"></div>
+
+  <main class="stage">
+
+    <!-- ШАГ A: форма -->
+    <section class="screen screen--form is-active" data-screen="form">
+      <div class="card card--wide pop">
+        <p class="eyebrow" data-i18n="c_eyebrow">invite generator</p>
+        <h1 data-i18n-rich="c_title">Ask her so she <span class="mark">can't say no</span></h1>
+        <p class="lead" data-i18n="c_lead">Fill in a couple of fields and get a link. Send it — then the magic: the “NO” button runs away, and only “YES” is left.</p>
+
+        <form class="form" id="createForm" autocomplete="off">
+          <div class="field">
+            <label for="f-lang" data-i18n="c_lang_label">Invitation language</label>
+            <select class="custom-input" id="f-lang"></select>
+          </div>
+          <div class="field">
+            <label for="f-to" data-i18n="c_to_label">What's her name?</label>
+            <input class="custom-input" id="f-to" type="text" data-i18n-ph="c_to_ph" placeholder="Anna" maxlength="40" required />
+          </div>
+          <div class="field">
+            <label for="f-from" data-i18n="c_from_label">And yours?</label>
+            <input class="custom-input" id="f-from" type="text" data-i18n-ph="c_from_ph" placeholder="Alex" maxlength="40" required />
+          </div>
+          <div class="field">
+            <label for="f-q"><span data-i18n="c_q_label">Your question</span> <span class="opt" data-i18n="c_q_opt">(optional)</span></label>
+            <input class="custom-input" id="f-q" type="text" data-i18n-ph="c_q_ph" placeholder="Will you go on a date with me?" maxlength="120" />
+          </div>
+          <div class="field">
+            <label for="f-no"><span data-i18n="c_no_label">Custom “No” button messages</span> <span class="opt" data-i18n="c_no_opt">(optional)</span></label>
+            <textarea class="note-input" id="f-no" data-i18n-ph="c_no_ph" placeholder="One per line — your inside jokes 😏" rows="3"></textarea>
+            <p class="field-note" data-i18n="c_no_note">These pop up on the dodging No button. One phrase per line.</p>
+          </div>
+          <div class="field">
+            <label for="f-email" data-i18n="c_email_label">Your email for her answer</label>
+            <input class="custom-input" id="f-email" type="email" placeholder="you@example.com" maxlength="254" required />
+            <p class="field-note" data-i18n="c_email_note">Her answer comes here. She never sees your email.</p>
+          </div>
+          <button class="btn btn--primary btn--block" type="submit" data-i18n="c_submit">Create link 💌</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ШАГ B: готовая ссылка -->
+    <section class="screen screen--done" data-screen="done">
+      <div class="card card--wide pop">
+        <p class="eyebrow" data-i18n="c_done_eyebrow">done</p>
+        <h1 data-i18n-rich="c_done_title">Link <span class="mark">is ready</span></h1>
+        <p class="lead"><span data-i18n="c_done_lead_a">Send it to</span> <span class="accent" id="done-to">her</span> <span data-i18n="c_done_lead_b">in any messenger 👇</span></p>
+
+        <div class="linkbox">
+          <input class="custom-input" id="linkField" type="text" readonly />
+          <button class="btn btn--ghost" id="copyBtn" type="button" data-i18n="c_copy">Copy</button>
+        </div>
+
+        <div class="share-row">
+          <a class="btn btn--share" id="shareTg" target="_blank" rel="noopener">Telegram</a>
+          <a class="btn btn--share" id="shareWa" target="_blank" rel="noopener">WhatsApp</a>
+          <button class="btn btn--share" id="shareNative" type="button" data-i18n="c_share_native" hidden>Share…</button>
+          <a class="btn btn--share" id="previewLink" target="_blank" rel="noopener" data-i18n="c_preview">Preview</a>
+        </div>
+
+        <p class="recap" id="recap" hidden></p>
+        <button class="btn btn--ghost btn--block" id="againBtn" type="button" data-i18n="c_again">← Create another</button>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="/static/i18n.js"></script>
+  <script src="/static/create.js"></script>
+</body>
+</html>
