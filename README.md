@@ -1,4 +1,4 @@
-# YES or YES 💌 (Clon Funcional)
+# YES or YES 💌
 
 Este es un clon exacto de [justsayyesto.me](https://justsayyesto.me/), con el diseño, tipografías y lógica interactiva original (el botón "NO" huye de forma juguetona). Además, incluye un backend completo para almacenar las invitaciones generadas y recibir las respuestas de las citas directamente en tu correo electrónico.
 
